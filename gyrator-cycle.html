@@ -74,11 +74,11 @@ https://cloud9-sdk.readme.io/docs/language-mode
 </head>
 <body>
 
-<a id = "prevlink" href = "ramp.html">
+<a id = "prevlink" href = "gyrator-image.html">
     <img src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/left-arrow.svg"/>    
 </a>
 
-<a id = "nextlink" href = "gyrator-cycle.html">
+<a id = "nextlink" href = "index.html">
     <img src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/right-arrow.svg"/>    
 </a>
 
@@ -86,7 +86,8 @@ https://cloud9-sdk.readme.io/docs/language-mode
 
 <div id = "scroll">
 
-<h1>DTMF Gyrator Response</h1>
+<h1>DTMF Cycle Response</h1>
+
 
 <p style = "font-size:25px">
     Connect to sub-woofer.  Click  to start, move mouse in square to adjust frequencies.  Change base frequencies in inputs below. 
@@ -148,6 +149,9 @@ vx = 0;
 vy = 0;
 theta = 0;
 phi = 0;
+
+T_water = 60;
+T_fire = 60;
 
 document.getElementById("earthinput").value = f_earth.toString();
 document.getElementById("airinput").value = f_air.toString();
@@ -321,8 +325,9 @@ function draw(){
    
    theta = Math.PI*vy;
    phi = 2*Math.PI*vx;
-   f_fire = f_air*(1 + 0.5*vy);
-   f_water = f_earth*(1 + 0.5*vx);
+   f_fire = f_air*(1 + 1*vy + 0.5*Math.sin(2*Math.PI*frameIndex/T_fire));
+   f_water = f_earth*(1 + 1*vx + 0.5*Math.cos(2*Math.PI*frameIndex/T_water));
+   
    osc.freq(f_water);  
    osc2.freq(f_fire); 
    
