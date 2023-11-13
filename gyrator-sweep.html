@@ -86,7 +86,7 @@ https://cloud9-sdk.readme.io/docs/language-mode
 
 <div id = "scroll">
 
-<h1>DTMF Cycle Response</h1>
+<h1>DTMF Sine Response</h1>
 
 
 <p style = "font-size:25px">
@@ -94,31 +94,17 @@ https://cloud9-sdk.readme.io/docs/language-mode
 </p>
 
     <p>
-        <img class = "element" src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/air.svg"/>tone:<input id = "airinput"/>Hz.  
-    </p>
-    
-    
-    <p>
-       <img class = "element" src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/fire.svg"/>tone:<span id = "firespan"></span> Hz    
+f0:<input id = "f0input"/> Hz.  
     </p>
     <p>
-        <img class = "element" src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/water.svg"/>tone:<span id = "waterspan"></span> Hz
+        f = <span id = "fspan"></span>
     </p>
     
-    <p>
-        <img class = "element" src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/earth.svg"/>tone:<input id = "earthinput"/>Hz
-    </p>
     
     <p style = "font-size:20px;overflow:scroll;">
         $$
-        \Gamma = \cos{(2\pi t f_{\textbf{water}})}  + \sin{(2\pi t f_{\textbf{fire}})}
+    f = f_0\left[1 + v_x\frac{1}{2}\sin{\left(\frac{2\pi t}{T}\right)}\right]
         $$
-        $$
-    f_{\textbf{water}} = f_{\textbf{earth}}(1 + x)
-        $$    
-        $$
-    f_{\textbf{fire}} = f_{\textbf{air}}(1 + y)
-        $$    
     </p> 
     
 
@@ -141,7 +127,7 @@ freq = 666;//Hz
 oscon= false;
 T = 100;
 delta = 1.0;
-f0 = 99;
+f0 = 111.11;
 
 f_earth = 99;
 f_air = 69;
@@ -155,15 +141,12 @@ phi = 0;
 T_water = 60;
 T_fire = 60;
 
-document.getElementById("earthinput").value = f_earth.toString();
-document.getElementById("airinput").value = f_air.toString();
+document.getElementById("f0input").value = f0.toString();
 
-document.getElementById("earthinput").onchange = function(){
-    f_earth = parseFloat(this.value);
+document.getElementById("f0input").onchange = function(){
+    f0 = parseFloat(this.value);
 }
-document.getElementById("airinput").onchange = function(){
-    f_air = parseFloat(this.value);
-}
+
 
 
 squaresize = 700;
@@ -219,8 +202,8 @@ function setup() {
   osc.amp(1.0);   
   osc2 = new p5.SinOsc(); // set frequency and type
   osc2.amp(1.0);  
-  osc.freq(f_earth);  
-  osc2.freq(f_air);   
+  osc.freq(f0);  
+  osc2.freq(f0);   
   background(255);
 }
 
@@ -325,24 +308,14 @@ function draw(){
       vy = 1;
   }
    
-   theta = Math.PI*vy;
-   phi = 2*Math.PI*vx;
-   f_fire = f_air*(1 + 1*vy + 0.5*Math.sin(2*Math.PI*frameIndex/T_fire));
-   f_water = f_earth*(1 + 1*vx + 0.5*Math.cos(2*Math.PI*frameIndex/T_water));
-   
-   
+
    
    osc.freq(f0);  
-   if(Math.round(frameIndex/T)%2 == 0){
-       osc2.freq(f0 + vx + vy*frameIndex%T/T); 
-   }
-   else{
-       osc2.freq(f0 + vx + vy*(1-frameIndex%T/T)); 
-   }
-   
+   osc2.freq(f0 + 0.5*f0*Math.sin(2*Math.PI*frameIndex/T)); 
 
-   document.getElementById("firespan").innerHTML = (Math.round(f_fire*10)/10).toString();
-   document.getElementById("waterspan").innerHTML = (Math.round(f_water*10)/10).toString();
+
+   document.getElementById("fspan").innerHTML = (f0 + vx*0.5*f0*Math.sin(2*Math.PI*frameIndex/T)).toString();
+   
    
   strokeWeight(1); 
   textSize(25);
