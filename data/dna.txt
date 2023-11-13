@@ -4,6 +4,7 @@
         "fork.html",
         "geometron.html",
         "geometron.js",
+        "gyrator-image.html",
         "gyrator.html",
         "imagefeed.txt",
         "index.html",

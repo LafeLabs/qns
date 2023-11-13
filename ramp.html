@@ -74,11 +74,11 @@ https://cloud9-sdk.readme.io/docs/language-mode
 </head>
 <body>
 
-<a id = "prevlink" href = "scope.html">
+<a id = "prevlink" href = "gyrator.html">
     <img src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/left-arrow.svg"/>    
 </a>
 
-<a id = "nextlink" href = "gyrator.html">
+<a id = "nextlink" href = "gyrator-image.html">
     <img src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/right-arrow.svg"/>    
 </a>
 
@@ -86,9 +86,9 @@ https://cloud9-sdk.readme.io/docs/language-mode
 
 <div id = "scroll">
 
-<h1>Spectrum Analyzer And Sine Wave</h1>
+<h1>Ramp Response</h1>
 <p>
-Click square to turn tone on/off. Move pointer to control frequency and amplitude.
+Click square to turn tone on/off. Move pointer to control frequency and sweep time.
 </p>
 <p>
     $$
@@ -112,6 +112,7 @@ var currentSource = "mic";
 amp = 0;
 freq = 666;//Hz
 oscon= false;
+T = 100;
 
 squaresize = 700;
 margin = 100;
@@ -164,48 +165,102 @@ function setup() {
   fft.setInput(mic);
   osc = new p5.SinOsc(); // set frequency and type
   osc.amp(amp);    
-  
+  background(255);
 }
 
 
+frameIndex= 0;
+p = 0;
+plast = 0;
+gain = 1;
 
 function draw(){
 
   frameRate(30);
   
-  background(255);
+//  background(255);
 
   // get a buffer of 1024 samples over time.
   spectrum = fft.analyze();
   nyquistFreq = sampleRate() / 2;
   binFreq = nyquistFreq / (spectrum.length);
-  
-  strokeWeight(4);
-  noFill();
-  beginShape();
-    vertex(0,height);
-   for (let i = 0; i < spectrum.length; i++) {
-    vertex(i, map(spectrum[i], 0, 255, height, 0));
-    
-  }
-  vertex(width,height);
-  endShape();
-  
-  stroke("red");
-  kHz = Math.round(1000/binFreq); 
-  for(var index = 0;index < width;index++){
-      if(index%(kHz) == 0){
-          line(index,height,index,height-10);
-          line(index,0,index,10);
 
-      }
+  for (let i = 0; i < spectrum.length; i++) {
+    //stroke(spectrum[i]);
+    
+        n = 256;
+        H = spectrum[i]*360/n;
+        z = 255*(1 - Math.abs((H/60)%2 - 1));
+    
+        if(H < 60){
+            red = 255;
+            green = Math.round(z);
+            blue = 0;
+        }
+        if(H >= 60 && H < 120){
+            red = Math.round(z);
+            green = 255;
+            blue = 0;
+        }
+        if(H >= 120 && H < 180){
+            red = 0;
+            green = 255;
+            blue = Math.round(z);
+        }
+        if(H >= 180 && H < 240){
+            red = 0;    
+            green = Math.round(z);
+            blue = 255;
+        }
+        if(H >= 240 && H < 300){
+            red = Math.round(z);    
+            green = 0;
+            blue = 255;
+        }
+        if(H >= 300 && H < 360){
+            red = 255;    
+            green = 0;
+            blue = Math.round(z);
+        }    
+    
+  //  stroke(0);
+//    point(frameIndex,height - 5*i);
+    
+//     stroke('rgb(' + red + ',' + green + ',' + blue + ')');
+   
+        if(spectrum[i]< 4){
+            stroke("#808080");        
+        }
+        else{
+            stroke('rgba(' + red + ',' + green + ',' + blue + ',' + spectrum[i]/10 + ')');        
+        }
+      strokeWeight(3); 
+      point(frameIndex,height - 3*i);
   }
+
+  p = 0;
+  for(var index = 0;index < spectrum.length;index++){
+      p += spectrum[index];
+  }
+  p /= spectrum.length;
+  p *= gain*p;
   stroke(0);
   
+//  circle(frameIndex,map(power, 0, 255, height, 0),10);
+  strokeWeight(3); 
+
+  line(frameIndex - 1,map(plast, 0, 255, height, 0),frameIndex,map(p, 0, 255, height, 0));
+  
+  plast = p;
+  
   if(mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height){
-      amp = map(mouseY, 0, height, 1, 0.01);    
-      freq = map(mouseX, 0, width, 60, 10000);
+      T = mouseX;    
+      freq = map(mouseY, 0, width, 1000, 50);
   }
+  else{
+      T = width;
+  }
+  amp = (frameIndex%T)/T;
   
   osc.amp(amp);
   osc.freq(freq);
@@ -214,20 +269,25 @@ function draw(){
   fill("purple");
   color("purple");
   if(oscon ==true){
-      text("f = " + (Math.round(freq)).toString() + " Hz",50,50);
-      text("A = " + (Math.round(100*amp) + "%").toString(),50,100);  
+//      text("f = " + (Math.round(freq)).toString() + " Hz",50,50);
+  //    text("A = " + (Math.round(100*amp) + "%").toString(),50,100);  
   }
   else{
-      text("TONE OFF",50,100);  
+    //  text("TONE OFF",50,100);  
   }
 
   color("blue");
   fill("blue");
 
-  text("1 tic = 1 kHz",width - 200,height - 30);  
+//  text("1 tic = 1 kHz",width - 200,height - 30);  
 
  // text("time = " + (Math.round(width/kHz)).toString() + " ms",width - 200,height-30);  
     
+   frameIndex++;
+   if(frameIndex > width){
+       frameIndex = 0;
+       //background(255);
+   }
 }
 
 
@@ -251,10 +311,10 @@ function post(){
     var url = "pngsave.php";        
     httpc.open("POST", url, true);
     httpc.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    httpc.send("data="+encodeURIComponent(png64.substring(22))+"&filename=trashmagic/square" + timestamp +  "-spectrum.png");//send text to filesaver.php
+    httpc.send("data="+encodeURIComponent(png64.substring(22))+"&filename=trashmagic/square" + timestamp +  "-ramp.png");//send text to filesaver.php
      //location.reload(); 
      
-    newfilename = "trashmagic/square" + timestamp +  "-spectrum.png";
+    newfilename = "trashmagic/square" + timestamp +  "-ramp.png";
     
     var newbox = document.createElement("DIV");
     newbox.classList.add("imagebox");         
@@ -316,7 +376,7 @@ var httpc9 = new XMLHttpRequest();
         squares = JSON.parse(this.responseText);
         for(var index = squares.length - 1;index >= 0;index--) {
             
-            if(squares[index].includes("-spectrum")){
+            if(squares[index].includes("-ramp")){
             
                 var newbox = document.createElement("DIV");
                 newbox.classList.add("imagebox");         
