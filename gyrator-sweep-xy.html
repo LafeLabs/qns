@@ -74,11 +74,11 @@ https://cloud9-sdk.readme.io/docs/language-mode
 </head>
 <body>
 
-<a id = "prevlink" href = "gyrator-cycle.html">
+<a id = "prevlink" href = "gyrator-sweep.html">
     <img src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/left-arrow.svg"/>    
 </a>
 
-<a id = "nextlink" href = "gyrator-sweep-xy.html">
+<a id = "nextlink" href = "index.html">
     <img src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/right-arrow.svg"/>    
 </a>
 
@@ -86,7 +86,7 @@ https://cloud9-sdk.readme.io/docs/language-mode
 
 <div id = "scroll">
 
-<h1>DTMF Sine Response</h1>
+<h1>XY sweep</h1>
 
 
 <p style = "font-size:25px">
@@ -136,6 +136,7 @@ delta = 1.0;
 f0 = 111.11;
 f1= f0;
 f2 = f0;
+fgain = 2;
 
 f_earth = 99;
 f_air = 69;
@@ -148,6 +149,7 @@ phi = 0;
 
 T_water = 60;
 T_fire = 60;
+
 
 document.getElementById("f0input").value = f0.toString();
 
@@ -232,6 +234,36 @@ function draw(){
   nyquistFreq = sampleRate() / 2;
   binFreq = nyquistFreq / (spectrum.length);
 
+  plast = p;
+  
+
+  vx = mouseX/width;
+  vy = 2*(0.5*height - mouseY)/height;//should go between -1 and 1
+  if(vx < 0){
+      vx = 0;
+  }
+  if(vx > 1){
+      vx = 1;
+  }
+  if(vy < -1){
+      vy = -1;
+  }
+  if(vy > 1){
+      vy = 1;
+  }
+   
+
+   
+   f1 = f0*(1 - 0.5*vy);
+   f2 = f0 - 0.5*vy + 0.5*vx*f0*Math.sin(2*Math.PI*frameIndex/T);
+   osc.freq(f1);  
+   osc2.freq(f2); 
+
+
+   document.getElementById("f1span").innerHTML = f1.toString();
+   document.getElementById("f2span").innerHTML = f2.toString();
+   
+   
   for (let i = 0; i < spectrum.length; i++) {
     //stroke(spectrum[i]);
     
@@ -287,7 +319,9 @@ function draw(){
         
       
       strokeWeight(0.1);
-      rect((frameIndex - 1)*3,height - 10*i,10);    
+      rect(0.5*width + fgain*(f2-f1),height - 10*i,10);   
+      
+      
 //      point(frameIndex,height - 3*i);
       
   }
@@ -305,35 +339,7 @@ function draw(){
 
 //  line(frameIndex - 1,map(plast, 0, 255, height, 0),frameIndex,map(p, 0, 255, height, 0));
   
-  plast = p;
-  
 
-  vx = mouseX/width;
-  vy = 2*(0.5*height - mouseY)/height;//should go between -1 and 1
-  if(vx < 0){
-      vx = 0;
-  }
-  if(vx > 1){
-      vx = 1;
-  }
-  if(vy < -1){
-      vy = -1;
-  }
-  if(vy > 1){
-      vy = 1;
-  }
-   
-
-   
-   f1 = f0*(1 - 0.5*vy);
-   f2 = f0 - 0.5*vy + 0.5*vx*f0*Math.sin(2*Math.PI*frameIndex/T);
-   osc.freq(f1);  
-   osc2.freq(f2); 
-
-
-   document.getElementById("f1span").innerHTML = f1.toString();
-   document.getElementById("f2span").innerHTML = f2.toString();
-   
    
   strokeWeight(1); 
   textSize(25);

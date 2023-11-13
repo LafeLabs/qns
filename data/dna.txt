@@ -6,6 +6,7 @@
         "geometron.js",
         "gyrator-cycle.html",
         "gyrator-image.html",
+        "gyrator-sweep-xy.html",
         "gyrator-sweep.html",
         "gyrator.html",
         "imagefeed.txt",
