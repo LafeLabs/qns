@@ -1,0 +1,417 @@
+ <!doctype html>
+<html>
+<head>
+ <!-- 
+PUBLIC DOMAIN, NO COPYRIGHTS, NO PATENTS.
+
+CC0
+
+
+LAWS OF GEOMETRON:
+
+EVERYTHING IS PHYSICAL
+EVERYTHING IS FRACTAL
+EVERYTHING IS RECURSIVE
+
+NO MONEY
+NO MINING 
+NO PROPERTY
+
+LOOK AT THE INSECTS
+LOOK AT THE FUNGI
+LANGUAGE IS HOW THE MIND PARSES REALITY
+
+
+LAWS OF TRASH MAGIC:
+
+EVERYTHING FREE FOR EVERYONE EVERYWHERE RIGHT NOW
+MAKE EVERYTHING FROM TRASH AND WHAT WE CAN GROW 
+EVERYTHING IS SELF-REPLICATING MEDIA
+
+LAWS OF QNS:
+
+EVERYTHING IS AN EFFECTS PEDAL
+EVERYTHING LIVES IN A WEB BROWSER
+EVERYTHING IS PUBLIC DOMAIN
+
+
+-->
+
+<!--Stop Google:-->
+<META NAME="robots" CONTENT="noindex,nofollow">
+    
+    
+    <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA4A8AAO/vAADqrwAA6q8AAOqvAADqrwAA6q8AAOqvAADqrwAA7+8AAMAHAADf9wAAwAcAAPu/AAD4PwAA" rel="icon" type="image/x-icon">
+    
+
+
+<script src="https://cdn.jsdelivr.net/npm/p5@1.7.0/lib/p5.js"></script>
+<script src = "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.js"></script>
+
+<!--
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+    MathJax.Hub.Config({
+        tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        processClass: "mathjax",
+        ignoreClass: "no-mathjax"
+        }
+    });//			MathJax.Hub.Typeset();//tell Mathjax to update the math
+</script>
+        -->    
+
+
+<title>SQUARES</title>
+
+</head>
+<body>
+
+<a id = "prevlink" href = "index.html">
+    <img src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/left-arrow.svg"/>    
+</a>
+
+<a id = "nextlink" href = "index.html">
+    <img src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/right-arrow.svg"/>    
+</a>
+
+<div id = "scroll">
+    <form id = "uploadform" action="uploadimage.php" method="post" enctype="multipart/form-data">
+                        <span id ="uploadspan">UPLOAD:</span>
+                <input type="file" name="fileToUpload" id="fileToUpload">
+                <input  type="submit" value="Upload Image" name="submit" id ="submitinput">
+        </form>
+   
+   
+<div class = "button" id = "deletebutton">DELETE</div>
+<div class = "button" id = "clearbutton">CLEAR</div>
+<div class = "button" id = "postbutton">POST</div>
+        
+   <h1>Images</h1>
+   
+</div>
+
+<div id = "squarebox">
+    <img id = "mainimage" style  = "display:none"/>
+    <div id = "square">
+    </div>
+</div>
+<script>
+
+squaresize = 700;
+margin = 100;
+if(innerWidth > innerHeight){
+    squaresize = innerHeight;
+    margin = (innerWidth - squaresize)/2;
+    document.getElementById("squarebox").style.left = margin.toString() + "px";
+    document.getElementById("squarebox").style.top = "0px";    
+
+
+    document.getElementById("scroll").style.top = "150px";
+    document.getElementById("scroll").style.left = (squaresize + margin).toString() + "px";        
+}
+else{
+    squaresize = innerWidth;
+    margin = (innerHeight - squaresize)/2;
+    
+
+    document.getElementById("scroll").style.top = (squaresize + margin).toString() + "px";
+    document.getElementById("scroll").style.left = "51%"; 
+}
+
+document.getElementById("squarebox").style.width = squaresize.toString() + "px";
+document.getElementById("squarebox").style.height = (squaresize).toString() + "px";
+
+lineArrayStack = [];
+lineArray =[];
+function preload() {
+ // img = loadImage('trashmagic/upload1.png');
+}
+function setup() {
+
+  createCanvas(squaresize, squaresize);    
+  
+  ctx = document.getElementById("defaultCanvas0").getContext("2d");
+    mainimage = document.getElementById("mainimage");
+
+  if(innerWidth > innerHeight){
+    document.getElementsByTagName("main")[0].style.left = margin.toString() + "px";          
+    document.getElementsByTagName("main")[0].style.top = "0px";          
+  }
+  else{
+    document.getElementsByTagName("main")[0].style.top = margin.toString() + "px";          
+    document.getElementsByTagName("main")[0].style.left = "0px";         
+  }
+   strokeWeight(10);
+    
+   //image(img, 0, 0,width,height);
+    background("white");
+}
+
+
+inLine = false;
+
+newimage = false;
+
+function draw() {
+  stroke(0);
+  if (mouseIsPressed === true) {
+    line(mouseX, mouseY, pmouseX, pmouseY);
+    inLine = true;
+    var r  ={};
+    r.x = mouseX;
+    r.y = mouseY;
+    lineArray.push(r);
+  }
+  else{
+      if(inLine){
+          lineArrayStack.push(lineArray);
+          lineArray = [];
+      }
+      inLine = false;
+  }
+//  img = loadImage("trashmagic/upload1.png");
+
+}
+
+
+
+squares = [];
+var httpc9 = new XMLHttpRequest();
+    httpc9.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        squares = JSON.parse(this.responseText);
+        for(var index = squares.length - 1;index >= 0;index--) {
+            
+           // if(squares[index].includes("-scope")){
+            
+                var newbox = document.createElement("DIV");
+                newbox.classList.add("imagebox");         
+                
+                var deletespan = document.createElement("SPAN");
+                deletespan.innerHTML = "X";
+                deletespan.classList.add("deletespan");
+                deletespan.onclick = function(){
+                    //delete the parent div of the image
+                    //delete the file
+                    var filename = this.parentElement.getElementsByClassName("filelabel")[0].innerHTML; 
+                    var httpc = new XMLHttpRequest();
+                    var url = "deletefile.php";         
+                    httpc.open("POST", url, true);
+                    httpc.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                    httpc.send("filename=trashmagic/" + filename);//send text to deletefile.php
+                    this.parentElement.parentElement.removeChild(this.parentElement);
+                }
+                
+                newbox.appendChild(deletespan);
+        
+                var newdiv = document.createElement("DIV");
+                newdiv.innerHTML = squares[index];
+                newdiv.className = "filelabel";
+                newbox.appendChild(newdiv);
+            
+                
+                document.getElementById("scroll").appendChild(newbox);
+                var newimg = document.createElement("IMG");
+                newimg.src = "trashmagic/" + squares[index];
+                newimg.classList.add("uploadimage");
+                newimg.classList.add("button");
+                newbox.appendChild(newimg);
+                newimg.onclick = function(){
+                    document.getElementById("mainimage").src = "trashmagic" + this.src.split("trashmagic")[1];
+                    
+                     ctx.drawImage(mainimage, 0, 0,width,height); 
+//                    img = loadImage("trashmagic" + this.src.split("trashmagic")[1]); // Load the image
+                    //alert("trashmagic" + this.src.split("trashmagic")[1]);
+                }
+                
+          //  }
+            
+        }
+    }
+};
+httpc9.open("GET", "dir.php?filename=trashmagic", true);
+httpc9.send();
+
+
+document.getElementById("deletebutton").onclick = function(){
+    lineArrayStack.pop();
+    lineArrayStack.pop();
+    clear();
+//    background(159,135,103);
+    for(var lineindex = 0;lineindex < lineArrayStack.length;lineindex++){
+        for(var pointindex = 1;pointindex < lineArrayStack[lineindex].length;pointindex++){
+            line(lineArrayStack[lineindex][pointindex - 1].x,lineArrayStack[lineindex][pointindex - 1].y,lineArrayStack[lineindex][pointindex].x,lineArrayStack[lineindex][pointindex].y);
+        }
+    }
+}
+
+
+
+document.getElementById("clearbutton").onclick = function(){
+    lineArrayStack = [];
+    clear();
+    background("white");
+}
+
+
+document.getElementById("postbutton").onclick = function(){
+
+    
+    png64 = document.getElementById("defaultCanvas0").toDataURL("image/png");
+    var timestamp = Math.round((new Date().getTime())/1000).toString();
+    var httpc = new XMLHttpRequest();
+    
+    var url = "pngsave.php";        
+    httpc.open("POST", url, true);
+    httpc.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    httpc.send("data="+encodeURIComponent(png64.substring(22))+"&filename=trashmagic/square" + timestamp +  ".png");//send text to filesaver.php
+     //location.reload(); 
+     
+
+    newfilename = "trashmagic/square" + timestamp +  ".png";
+    
+    var newbox = document.createElement("DIV");
+    newbox.classList.add("imagebox");         
+    
+    var deletespan = document.createElement("SPAN");
+    deletespan.innerHTML = "X";
+    deletespan.classList.add("deletespan");
+    deletespan.onclick = function(){
+        //delete the parent div of the image
+        //delete the file
+        var filename = this.parentElement.getElementsByClassName("filelabel")[0].innerHTML; 
+        var httpc = new XMLHttpRequest();
+        var url = "deletefile.php";         
+        httpc.open("POST", url, true);
+        httpc.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+        httpc.send("filename=trashmagic/" + filename);//send text to deletefile.php
+        this.parentElement.parentElement.removeChild(this.parentElement);
+    }
+    
+    newbox.appendChild(deletespan);
+
+    var newdiv = document.createElement("DIV");
+    newdiv.innerHTML = newfilename;
+    newdiv.className = "filelabel";
+    newbox.appendChild(newdiv);
+
+    var newimg = document.createElement("IMG");
+    newimg.src = png64;
+    newimg.classList.add("uploadimage");
+    newimg.classList.add("button");
+    newbox.appendChild(newimg);    
+
+    document.getElementById("scroll").insertBefore(newbox,document.getElementById("scroll").getElementsByClassName("imagebox")[0]);
+    
+    
+    
+}
+</script>
+<style>
+a{
+    color:blue;
+}
+body{
+    overflow:hidden;
+    font-family:Arial;
+}
+h1,h2{
+    text-align:center;
+}
+.filelabel{
+    display:none;
+}
+.button{
+    border:solid;
+    border-radius:5px;
+    border-width:3px;
+    cursor:pointer;
+    text-align:center;
+    width:6em;
+    margin-top:0.5em;
+}
+#squarebox{
+    position:absolute;
+    font-size:3em;
+   
+}
+#square{
+    position:absolute;
+    left:1em;
+    right:1em;
+    top:0px;
+    bottom:0px;
+    z-index:2;
+}
+#mainimage{
+    position:absolute;
+    z-index:1;
+    left:0px;
+    top:0px;
+    width:100%;
+}
+main{
+    position:absolute;
+    z-index:3;
+}
+#prevlink{
+    position:absolute;
+    left:0px;
+    top:0px;
+    width:100px;
+}
+#prevlink img{
+    width:100%;
+}
+#nextlink{
+    position:absolute;
+    right:0px;
+    top:0px;
+    width:100px;
+}
+#nextlink img{
+    width:100%;
+}
+
+#editor{
+    position:absolute;  
+    left:10px;
+    bottom:10px;
+}
+#scroll{
+    position:absolute;
+    right:0px;
+    bottom:0px;
+    padding:1em 1em 1em 1em;
+    overflow:scroll;
+}
+#scroll img{
+    max-width:80%;
+    display:block;
+    margin:auto;
+    margin-top:1em;
+    border:solid;
+}
+.deletespan{
+    color:red;
+    border:solid;
+    border-color:red;
+    font-size:20px;
+    border-radius:10px;
+    padding: 5px 5px 5px 5px;
+    cursor:pointer;
+    position:relative;
+    top:50px;
+    left:75%;
+    
+}
+.deletespan:hover{
+    background-color:#ff000080;
+}
+</style>
+
+</body>
+</html>

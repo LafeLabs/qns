@@ -69,49 +69,32 @@ https://cloud9-sdk.readme.io/docs/language-mode
     });//			MathJax.Hub.Typeset();//tell Mathjax to update the math
 </script>
         
-<title>GYRATOR SWEEP</title>
+<title>DTMF GYRATOR</title>
 
 </head>
 <body>
 
-<a id = "prevlink" href = "gyrator-sweep.html">
+<a id = "prevlink" href = "ramp.html">
     <img src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/left-arrow.svg"/>    
 </a>
 
-<a id = "nextlink" href = "lowpass.html">
+<a id = "nextlink" href = "index.html">
     <img src = "https://raw.githubusercontent.com/LafeLabs/squares/main/trashmagic/right-arrow.svg"/>    
 </a>
 
 <div id="editor" contenteditable="true" spellcheck="false"></div>
 
-<div id = "scroll">
+<div id = "scroll"  >
 
-<h1>XY sweep</h1>
-
+<h1>Low pass filtered white noise</h1>
 
 <p style = "font-size:25px">
-    Connect to sub-woofer.  Click  to start, move mouse in square to adjust frequencies.  Change base frequencies in inputs below. 
+    Connect to sub-woofer.  Click  to start, move mouse vertically to adjust filter frequency. Hit "s" key or push "post" button to post a square to the feed.
 </p>
 
-    <p>
-f0:<input id = "f0input"/> Hz.  
-    </p>
-    <p>
-        f1 = <span id = "f1span"></span>
-    </p>
-    <p>
-        f2 = <span id = "f2span"></span>
-    </p>
+
     
-    
-    <p style = "font-size:20px;overflow:scroll;">
-        $$
-    f_1 = f_0(1 + v_y)
-        $$
-        $$
-    f_2 = f_0\left[1 + v_y + \frac{1}{2}v_x\sin{\left(\frac{2\pi t}{T}\right)}\right]
-        $$    
-    </p> 
+
     
 
 <a href = "index.html">HOME</a>
@@ -132,30 +115,9 @@ amp = 0;
 freq = 666;//Hz
 oscon= false;
 T = 100;
-delta = 1.0;
-f0 = 111.11;
-f1= f0;
-f2 = f0;
-fgain = 2;
 
-f_earth = 99;
-f_air = 69;
-f_fire = f_air;
-f_water = f_earth;
-vx = 0;
-vy = 0;
-theta = 0;
-phi = 0;
-
-T_water = 60;
-T_fire = 60;
-
-
-document.getElementById("f0input").value = f0.toString();
-
-document.getElementById("f0input").onchange = function(){
-    f0 = parseFloat(this.value);
-}
+let noise;
+let filter, filterFreq;
 
 
 
@@ -208,13 +170,16 @@ function setup() {
     
   fft = new p5.FFT();
   fft.setInput(mic);
-  osc = new p5.SinOsc(); // set frequency and type
-  osc.amp(1.0);   
-  osc2 = new p5.SinOsc(); // set frequency and type
-  osc2.amp(1.0);  
-  osc.freq(f0);  
-  osc2.freq(f0);   
+
   background(255);
+  filter = new p5.LowPass();
+
+  noise = new p5.Noise();
+
+  noise.disconnect(); // Disconnect soundfile from master output...
+  filter.process(noise); // ...and connect to filter so we'll only hear BandPass.
+  //noise.start();
+  
 }
 
 
@@ -234,36 +199,6 @@ function draw(){
   nyquistFreq = sampleRate() / 2;
   binFreq = nyquistFreq / (spectrum.length);
 
-  plast = p;
-  
-
-  vx = mouseX/width;
-  vy = 2*(0.5*height - mouseY)/height;//should go between -1 and 1
-  if(vx < 0){
-      vx = 0;
-  }
-  if(vx > 1){
-      vx = 1;
-  }
-  if(vy < -1){
-      vy = -1;
-  }
-  if(vy > 1){
-      vy = 1;
-  }
-   
-
-   
-   f1 = f0*(1 - 0.5*vy);
-   f2 = f0 - 0.5*vy + 0.5*vx*f0*Math.sin(2*Math.PI*frameIndex/T);
-   osc.freq(f1);  
-   osc2.freq(f2); 
-
-
-   document.getElementById("f1span").innerHTML = f1.toString();
-   document.getElementById("f2span").innerHTML = f2.toString();
-   
-   
   for (let i = 0; i < spectrum.length; i++) {
     //stroke(spectrum[i]);
     
@@ -309,21 +244,12 @@ function draw(){
    
         if(spectrum[i]< 4){
             stroke("#808080");        
-            fill("#808080");        
-            
         }
         else{
             stroke('rgba(' + red + ',' + green + ',' + blue + ',' + spectrum[i]/10 + ')');        
-            fill('rgba(' + red + ',' + green + ',' + blue + ',' + spectrum[i]/10 + ')');        
         }
-        
-      
-      strokeWeight(0.1);
-      rect(0.5*width + fgain*(f2-f1),height - 10*i,10);   
-      
-      
-//      point(frameIndex,height - 3*i);
-      
+      strokeWeight(3); 
+      point(frameIndex,height - 3*i);
   }
 
   p = 0;
@@ -339,8 +265,13 @@ function draw(){
 
 //  line(frameIndex - 1,map(plast, 0, 255, height, 0),frameIndex,map(p, 0, 255, height, 0));
   
+  plast = p;
+  
 
-   
+   filterFreq = map(mouseY, height, 0, 10, 1000);
+  filter.set(filterFreq);
+
+
   strokeWeight(1); 
   textSize(25);
   fill("purple");
@@ -359,9 +290,32 @@ function draw(){
 //  text("1 tic = 1 kHz",width - 200,height - 30);  
 
  // text("time = " + (Math.round(width/kHz)).toString() + " ms",width - 200,height-30);  
-    
+  stroke("black");
+  strokeWeight(4);
+  kHz = Math.round(1000/binFreq); 
+  for(var index = 1;index < width;index++){
+      if(index%(kHz) == 0){
+          line(width,height - 3*index,width -25,height - 3*index);
+          line(0,height - 3*index,25,height - 3*index);
+      }
+  }
+  
+  strokeWeight(1);
+  textSize(20);
+  fill(0);
+  for(var index = 1;index < width;index++){
+      if(index%(kHz) == 0){
+          text((index/kHz).toString() + " kHz",30,height - 3*index + 7);
+          text((index/kHz).toString() + " kHz",width - 100,height - 3*index + 7);
+      }
+  }
+  textSize(50);
+  text("Lowpass Filtered White Noise",100,100);
+
+
+  
    frameIndex++;
-   if((frameIndex - 1)*3 > width){
+   if(frameIndex > width){
        frameIndex = 0;
        //background(255);
    }
@@ -388,10 +342,10 @@ function post(){
     var url = "pngsave.php";        
     httpc.open("POST", url, true);
     httpc.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    httpc.send("data="+encodeURIComponent(png64.substring(22))+"&filename=trashmagic/square" + timestamp +  "-ramp.png");//send text to filesaver.php
+    httpc.send("data="+encodeURIComponent(png64.substring(22))+"&filename=trashmagic/square" + timestamp +  "-lowpass.png");//send text to filesaver.php
      //location.reload(); 
      
-    newfilename = "trashmagic/square" + timestamp +  "-ramp.png";
+    newfilename = "trashmagic/square" + timestamp +  "-lowpass.png";
     
     var newbox = document.createElement("DIV");
     newbox.classList.add("imagebox");         
@@ -433,14 +387,10 @@ function mouseClicked() {
  
  if(mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height){
       if(!oscon){
-          osc.start();
-          osc2.start();
-
+          noise.start();
       }
       else{
-          osc.stop();
-          osc2.stop();
-
+          noise.stop();
       }
       oscon = !oscon;     
  } 
@@ -457,7 +407,7 @@ var httpc9 = new XMLHttpRequest();
         squares = JSON.parse(this.responseText);
         for(var index = squares.length - 1;index >= 0;index--) {
             
-            if(squares[index].includes("-ramp")){
+            if(squares[index].includes("-lowpass")){
             
                 var newbox = document.createElement("DIV");
                 newbox.classList.add("imagebox");         
@@ -537,8 +487,8 @@ document.getElementById("editor").onkeyup = function(){
 
 
 
-document.body.style.backgroundColor = "#b0b0b0";
-document.body.style.color = "black";
+//document.body.style.backgroundColor = "#b0b0b0";
+//document.body.style.color = "black";
 editor.setTheme("ace/theme/github");
       
         
