@@ -1,6 +1,7 @@
 {
     "html": [
         "README.md",
+        "beat-plots.html",
         "fork.html",
         "geometron.html",
         "geometron.js",
@@ -21,6 +22,7 @@
         "readme.html",
         "readmeeditor.html",
         "scope.html",
+        "sine-response.html",
         "spectrum.html",
         "squares.html",
         "trashdeck.html",
